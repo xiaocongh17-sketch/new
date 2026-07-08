@@ -1,0 +1,75 @@
+   ▲ Next.js 15.5.19
+   - Local:        http://localhost:3003
+   - Network:      http://26.13.195.204:3003
+
+ ✓ Starting...
+ ✓ Ready in 14.7s
+ ○ Compiling / ...
+ ✓ Compiled / in 15.8s (754 modules)
+ GET / 200 in 16839ms
+ ✓ Compiled in 104ms (314 modules)
+ GET / 200 in 43ms
+ GET / 200 in 135ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 548ms (747 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /login 200 in 791ms
+ GET / 200 in 27ms
+ ✓ Compiled /houses in 317ms (762 modules)
+ GET /houses 200 in 449ms
+ ✓ Compiled /houses/[id] in 255ms (773 modules)
+ ✓ Compiled /employees in 219ms (780 modules)
+ GET /employees 200 in 286ms
+ ✓ Compiled /knowledge in 226ms (787 modules)
+ GET /knowledge 200 in 308ms
+ ✓ Compiled /ai-chat in 322ms (802 modules)
+ GET /ai-chat 200 in 416ms
+ GET /houses/new 200 in 11326ms
+ GET /houses/new 200 in 30ms
+ ✓ Compiled /stores in 404ms (809 modules)
+ GET /stores 200 in 483ms
+ GET /ai-chat 200 in 20ms
+ GET /employees 200 in 24ms
+ GET /knowledge 200 in 21ms
+ GET /ai-chat 200 in 16ms
+ GET /knowledge 200 in 21ms
+ GET /stores 200 in 16ms
+ GET /ai-chat 200 in 29ms
+Failed to proxy http://localhost:8000/api/v1/ai/chat [Error: socket hang up] { code: 'ECONNRESET' }
+[Error: socket hang up] { code: 'ECONNRESET' }
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 521ms (1162 modules)
+ GET /ai-chat 200 in 896ms
+ GET /ai-chat 200 in 16ms
+ GET / 200 in 145ms
+ GET / 200 in 68ms
+ GET /login 200 in 103ms
+ GET / 200 in 58ms
+ GET /ai-chat 200 in 30ms
+ GET /knowledge 200 in 45ms
+ GET /ai-chat 200 in 30ms
+ GET /knowledge 200 in 40ms
+ GET /employees 200 in 68ms
+ GET /houses 200 in 45ms
+ GET /employees 200 in 34ms
+ GET / 200 in 34ms
+ GET /ai-chat 200 in 55ms
+ GET /stores 200 in 41ms
+ GET /employees 200 in 36ms
+ GET /employees 200 in 28ms
+ GET /houses 200 in 53ms
+ GET /knowledge 200 in 50ms
+ GET /ai-chat 200 in 163ms
+ GET /knowledge 200 in 31ms
+ GET /employees 200 in 65ms
+ GET /houses 200 in 63ms
+ GET / 200 in 59ms
+ GET /houses 200 in 23ms
+ GET /employees 200 in 34ms
+ GET / 200 in 19ms
+ GET /houses 200 in 32ms
+ GET / 200 in 15ms
+ GET /employees 200 in 15ms
+ GET / 200 in 16ms
+ GET /houses 200 in 20ms
+ GET /employees 200 in 14ms

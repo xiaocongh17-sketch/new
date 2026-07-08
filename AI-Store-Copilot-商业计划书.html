@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Store Copilot · 商业计划书</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --white: #ffffff;
+    --gray-50: #f5f5f7;
+    --gray-100: #e8e8ed;
+    --gray-200: #d2d2d7;
+    --gray-300: #aeaeb2;
+    --gray-400: #8e8e93;
+    --gray-500: #636366;
+    --gray-600: #48484a;
+    --gray-700: #363639;
+    --gray-800: #1c1c1e;
+    --gray-900: #0a0a0b;
+    --blue: #0071e3;
+    --blue-light: #40a9ff;
+    --blue-dark: #0058b0;
+    --blue-bg: #e8f0fe;
+    --indigo: #5856d6;
+    --indigo-light: #7d7aff;
+    --green: #34c759;
+    --orange: #ff9500;
+    --red: #ff3b30;
+    --teal: #5ac8fa;
+    --radius-sm: 8px;
+    --radius: 16px;
+    --radius-xl: 24px;
+  }
+
+  html {
+    scroll-snap-type: y proximity;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--white);
+    color: var(--gray-800);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ─── Scroll Progress Bar ─── */
+  #scroll-progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--blue), var(--indigo));
+    z-index: 1001;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+
+  /* ─── Nav ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    height: 48px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(40px) saturate(1.5);
+    -webkit-backdrop-filter: blur(40px) saturate(1.5);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    transition: all 0.3s ease;
+  }
+  nav.scrolled { background: rgba(255,255,255,0.92); box-shadow: 0 1px 0 rgba(0,0,0,0.06); }
+
+  .nav-inner {
+    max-width: 980px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-logo {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    color: var(--gray-800);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-logo-icon {
+    width: 22px; height: 22px;
+    background: var(--gray-800);
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: white;
+  }
+  .nav-links { display: flex; gap: 2px; }
+  .nav-links a {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--gray-500);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: all 0.25s ease;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 2px; left: 50%;
+    width: 0; height: 2px;
+    background: var(--blue);
+    border-radius: 1px;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+  }
+  .nav-links a:hover { color: var(--gray-800); background: var(--gray-50); }
+  .nav-links a.active {
+    color: var(--blue);
+    font-weight: 500;
+  }
+  .nav-links a.active::after {
+    width: 16px;
+  }
+
+  /* ─── Section commons ─── */
+  section {
+    position: relative;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: center;
+    padding: 100px 0;
+  }
+  #hero { min-height: 100vh; padding: 80px 24px 60px; }
+  #cta { min-height: auto; padding: 120px 0; text-align: center; }
+  section:not(#hero):not(#cta) { min-height: 80vh; }
+
+  .section-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 24px;
+    width: 100%;
+  }
+
+  .section-label {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+    color: var(--gray-800);
+    margin-bottom: 16px;
+  }
+
+  .section-sub {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--gray-400);
+    max-width: 640px;
+    line-height: 1.6;
+  }
+
+  /* ─── Hero ─── */
+  #hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #f5f5f7 0%, #ffffff 40%);
+  }
+  #hero::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,113,227,0.03) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    max-width: 980px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--blue);
+    background: var(--blue-bg);
+    margin-bottom: 28px;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(44px, 6vw, 72px);
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    line-height: 1.05;
+    color: var(--gray-800);
+    margin-bottom: 24px;
+  }
+  .hero-content h1 .gradient-text {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--indigo) 60%, var(--teal) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-subtitle {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--gray-400);
+    max-width: 620px;
+    margin: 0 auto 36px;
+    line-height: 1.7;
+  }
+
+  .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--blue);
+    color: white;
+    font-size: 16px; font-weight: 500;
+    padding: 14px 28px;
+    border-radius: 980px;
+    text-decoration: none;
+    transition: all 0.25s;
+    cursor: pointer;
+  }
+  .btn-primary:hover { background: var(--blue-dark); }
+
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: transparent;
+    color: var(--blue);
+    font-size: 16px; font-weight: 500;
+    padding: 14px 28px;
+    border-radius: 980px;
+    text-decoration: none;
+    border: 1px solid var(--blue);
+    transition: all 0.25s;
+    cursor: pointer;
+  }
+  .btn-secondary:hover { background: var(--blue-bg); }
+
+  /* ─── Hero visual ─── */
+  .hero-visual {
+    margin-top: 60px;
+    max-width: 780px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+  }
+  .hero-mockup {
+    background: var(--gray-800);
+    border-radius: 20px;
+    padding: 20px 24px 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 4px 20px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+  .mockup-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 18px;
+  }
+  .mockup-dots { display: flex; gap: 7px; }
+  .mockup-dot { width: 11px; height: 11px; border-radius: 50%; }
+  .mockup-dot:nth-child(1) { background: #ff5f56; }
+  .mockup-dot:nth-child(2) { background: #ffbd2e; }
+  .mockup-dot:nth-child(3) { background: #27c93f; }
+  .mockup-title {
+    font-size: 12px; color: rgba(255,255,255,0.5);
+    font-weight: 500; letter-spacing: 0.5px;
+  }
+  .mockup-chat { display: flex; flex-direction: column; gap: 10px; }
+  .mockup-msg {
+    padding: 12px 16px; border-radius: 12px;
+    font-size: 13px; line-height: 1.5; max-width: 70%;
+    animation: fade-up 0.5s ease-out both;
+  }
+  .mockup-msg.in {
+    background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85);
+    align-self: flex-start;
+  }
+  .mockup-msg.out {
+    background: var(--blue); color: white;
+    align-self: flex-end;
+  }
+  .mockup-msg:nth-child(2) { animation-delay: 0.1s; }
+  .mockup-msg:nth-child(3) { animation-delay: 0.2s; }
+  .mockup-msg:nth-child(4) { animation-delay: 0.3s; }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .mockup-footer {
+    display: flex; gap: 6px; margin-top: 14px;
+    padding: 14px; background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+  }
+  .mockup-bar {
+    flex: 1; height: 6px; background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+  }
+  .mockup-bar:first-child {
+    flex: 2;
+    background: linear-gradient(90deg, var(--blue), var(--indigo));
+  }
+
+  /* ─── Stats Bar ─── */
+  .stats-bar {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--gray-100);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: -48px auto 0;
+    max-width: 780px;
+    position: relative; z-index: 2;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  }
+  .stat-item {
+    background: var(--white);
+    padding: 28px 16px;
+    text-align: center;
+  }
+  .stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--gray-800);
+    letter-spacing: -1px;
+  }
+  .stat-label {
+    font-size: 13px;
+    color: var(--gray-400);
+    margin-top: 4px;
+    font-weight: 400;
+  }
+
+  /* ─── Pain Points ─── */
+  #pain-points {
+    padding: 100px 0;
+    background: var(--white);
+  }
+  .pain-header { margin-bottom: 60px; }
+
+  .pain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .pain-col-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .pain-list, .solution-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .pain-item, .solution-item {
+    display: flex; gap: 16px; align-items: flex-start;
+    padding: 20px;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+  }
+  .pain-item { background: #fef2f2; }
+  .solution-item { background: #f0fdf4; }
+
+  .pain-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 16px;
+  }
+  .pain-icon.red { background: #fecaca; }
+  .pain-icon.green { background: #bbf7d0; }
+
+  .pain-text h4 { font-size: 15px; font-weight: 600; color: var(--gray-800); margin-bottom: 3px; }
+  .pain-text p { font-size: 14px; color: var(--gray-500); line-height: 1.6; }
+
+  .market-numbers {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+    background: var(--gray-100);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 56px;
+  }
+  .market-number-card {
+    background: var(--white);
+    padding: 36px 24px;
+    text-align: center;
+  }
+  .market-num {
+    font-size: 44px; font-weight: 700;
+    color: var(--gray-800);
+    letter-spacing: -2px;
+  }
+  .market-num .accent { color: var(--blue); }
+  .market-desc { font-size: 15px; color: var(--gray-400); margin-top: 6px; }
+
+  /* ─── Product ─── */
+  #product {
+    padding: 120px 0;
+    background: var(--gray-50);
+  }
+  .product-header { margin-bottom: 60px; }
+
+  .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .product-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 40px 32px;
+    transition: all 0.3s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    border: 1px solid var(--gray-100);
+  }
+  .product-card:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+    border-color: var(--gray-200);
+    transform: translateY(-2px);
+  }
+  .product-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin-bottom: 20px;
+  }
+  .product-card h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; color: var(--gray-800); }
+  .product-card p { font-size: 14px; color: var(--gray-500); line-height: 1.7; margin-bottom: 16px; }
+  .product-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .product-tag {
+    padding: 4px 10px; border-radius: 6px;
+    font-size: 12px; font-weight: 500;
+    background: var(--gray-50); color: var(--gray-500);
+  }
+
+  /* ─── Architecture ─── */
+  #architecture {
+    padding: 120px 0;
+    background: var(--white);
+  }
+  .arch-visual { margin-top: 60px; }
+
+  .arch-layer {
+    display: flex; align-items: center; gap: 24px;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--gray-100);
+    transition: all 0.2s;
+  }
+  .arch-layer:first-child { border-top: 1px solid var(--gray-100); }
+  .arch-layer:hover { background: var(--gray-50); }
+
+  .arch-layer-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .arch-layer-label {
+    width: 120px; flex-shrink: 0;
+    font-size: 14px; font-weight: 600;
+  }
+  .arch-layer-tech { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+  .arch-tech-item {
+    padding: 4px 12px; border-radius: 6px;
+    font-size: 13px; font-weight: 400;
+    background: var(--gray-50); color: var(--gray-600);
+  }
+
+  .tech-features {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    margin-top: 56px;
+  }
+  .tech-feature {
+    padding: 28px 24px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--gray-100);
+    transition: all 0.2s;
+  }
+  .tech-feature:hover { border-color: var(--gray-200); box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
+  .tech-feature-icon { font-size: 28px; margin-bottom: 12px; }
+  .tech-feature h4 { font-size: 15px; font-weight: 600; color: var(--gray-800); margin-bottom: 6px; }
+  .tech-feature p { font-size: 14px; color: var(--gray-400); line-height: 1.6; }
+
+  /* ─── Business Model ─── */
+  #business-model {
+    padding: 120px 0;
+    background: var(--gray-50);
+  }
+  .biz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 60px; }
+
+  .pricing-cards { display: flex; flex-direction: column; gap: 12px; }
+  .pricing-card {
+    display: flex; align-items: center; gap: 20px;
+    padding: 24px;
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    transition: all 0.2s;
+  }
+  .pricing-card:hover { border-color: var(--gray-200); box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
+  .pricing-tier { width: 80px; flex-shrink: 0; }
+  .pricing-tier h4 { font-size: 16px; font-weight: 600; color: var(--gray-800); }
+  .pricing-tier .price { font-size: 13px; color: var(--gray-400); margin-top: 2px; }
+  .pricing-desc { flex: 1; font-size: 14px; color: var(--gray-500); }
+  .pricing-badge {
+    padding: 3px 10px; border-radius: 6px;
+    font-size: 11px; font-weight: 600;
+    background: var(--blue-bg); color: var(--blue);
+  }
+
+  .coop-grid { display: flex; flex-direction: column; gap: 12px; }
+  .coop-card {
+    padding: 24px;
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    transition: all 0.2s;
+  }
+  .coop-card:hover { border-color: var(--gray-200); box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
+  .coop-card h4 { font-size: 16px; font-weight: 600; color: var(--gray-800); margin-bottom: 4px; }
+  .coop-card p { font-size: 14px; color: var(--gray-500); }
+
+  .value-prop {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    margin-top: 48px;
+  }
+  .value-card {
+    padding: 32px 24px;
+    text-align: center;
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-100);
+  }
+  .value-card .big-num { font-size: 44px; font-weight: 700; color: var(--gray-800); letter-spacing: -2px; }
+  .value-card .suffix { font-size: 20px; font-weight: 600; color: var(--gray-500); }
+  .value-card p { font-size: 14px; color: var(--gray-400); margin-top: 6px; }
+
+  /* ─── Roadmap ─── */
+  #roadmap {
+    padding: 120px 0;
+    background: var(--white);
+  }
+  .roadmap-timeline { margin-top: 56px; }
+  .roadmap-item {
+    display: grid; grid-template-columns: 1fr 3fr; gap: 32px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .roadmap-item:first-child { border-top: 1px solid var(--gray-100); }
+  .roadmap-phase {
+    font-size: 14px; font-weight: 600;
+    color: var(--blue);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .roadmap-phase .time {
+    font-size: 13px; font-weight: 400;
+    color: var(--gray-400);
+  }
+  .roadmap-content h3 { font-size: 20px; font-weight: 600; color: var(--gray-800); margin-bottom: 6px; }
+  .roadmap-content p { font-size: 14px; color: var(--gray-500); line-height: 1.7; }
+
+  /* ─── CTA ─── */
+  #cta {
+    text-align: center;
+    background: var(--gray-50);
+  }
+
+  #pain-points { background: var(--white); }
+  #product { background: var(--gray-50); }
+  #architecture { background: var(--white); }
+  #business-model { background: var(--gray-50); }
+  #roadmap { background: var(--white); }
+  .cta-content h2 { font-size: clamp(32px, 4vw, 48px); font-weight: 700; color: var(--gray-800); margin-bottom: 16px; }
+  .cta-content p { font-size: 18px; color: var(--gray-400); margin-bottom: 36px; max-width: 540px; margin-left: auto; margin-right: auto; }
+  .cta-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  .cta-contact {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    margin-top: 48px;
+    max-width: 600px;
+    margin-left: auto; margin-right: auto;
+  }
+  .cta-contact-item { padding: 20px; border-radius: var(--radius-sm); background: var(--white); border: 1px solid var(--gray-100); }
+  .cta-contact-item .icon { font-size: 22px; margin-bottom: 8px; }
+  .cta-contact-item h4 { font-size: 13px; font-weight: 600; color: var(--gray-600); margin-bottom: 3px; }
+  .cta-contact-item p { font-size: 13px; color: var(--gray-400); }
+
+  /* ─── Footer ─── */
+  footer {
+    padding: 32px 0;
+    text-align: center;
+    border-top: 1px solid var(--gray-100);
+    background: var(--white);
+  }
+  footer p { font-size: 12px; color: var(--gray-400); }
+
+  /* ─── Scroll indicator ─── */
+  .scroll-indicator {
+    position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: var(--gray-300); font-size: 11px; letter-spacing: 2px;
+    animation: bounce 2s ease-in-out infinite;
+    z-index: 2;
+  }
+  @keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(8px); } }
+  .scroll-line { width: 1px; height: 32px; background: linear-gradient(to bottom, var(--gray-200), transparent); }
+
+  /* ─── Divider ─── */
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background: var(--gray-100);
+    margin: 0;
+    border: 0;
+  }
+
+  /* ─── Reveal ─── */
+  .reveal {
+    opacity: 0; transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ─── Stagger reveal (each child fades in sequence) ─── */
+  .stagger > * {
+    opacity: 0; transform: translateY(24px);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .stagger.revealed > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0s; }
+  .stagger.revealed > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
+  .stagger.revealed > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
+  .stagger.revealed > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.3s; }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    html { scroll-snap-type: none; }
+    #hero { min-height: auto; }
+    section:not(#hero):not(#cta) { min-height: auto; }
+    .pain-grid, .biz-grid { grid-template-columns: 1fr; }
+    .product-grid { grid-template-columns: 1fr; }
+    .market-numbers, .tech-features, .value-prop { grid-template-columns: 1fr; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .cta-contact { grid-template-columns: 1fr; }
+    .roadmap-item { grid-template-columns: 1fr; gap: 12px; }
+    .nav-links { display: none; }
+    .arch-layer { flex-direction: column; align-items: flex-start; gap: 10px; padding: 16px 20px; }
+    .arch-layer-label { width: auto; }
+    .hero-visual { margin-top: 40px; }
+    .hero-mockup { padding: 16px; }
+    #hero { padding: 100px 24px 60px; }
+    section { padding: 64px 0; }
+  }
+  @media (max-width: 480px) {
+    .section-inner { padding: 0 16px; }
+    .stats-bar { margin-top: -32px; }
+    .stat-item { padding: 20px 12px; }
+    .stat-number { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ Navigation ═══ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">
+      <span class="nav-logo-icon">▲</span>
+      AI Store Copilot
+    </a>
+    <div class="nav-links">
+      <a href="#pain-points">市场</a>
+      <a href="#product">产品</a>
+      <a href="#architecture">技术</a>
+      <a href="#business-model">模式</a>
+      <a href="#roadmap">路线图</a>
+      <a href="#cta" style="color:var(--blue);font-weight:500;">合作咨询</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ Hero ═══ -->
+<section id="hero">
+  <div class="hero-content">
+    <div class="hero-badge">AI驱动 · 智慧门店</div>
+    <h1>
+      让每一家房产门店<br>
+      <span class="gradient-text">都拥有一位AI超级店长</span>
+    </h1>
+    <p class="hero-subtitle">
+      AI Store Copilot 通过大模型+企业微信，帮助房产中介门店实现
+      7×24小时自动接待房东、智能房源管理、AI员工助手，全面提升门店经营效率。
+    </p>
+    <div class="hero-actions">
+      <a href="#business-model" class="btn-primary">了解合作方案 →</a>
+      <a href="#product" class="btn-secondary">查看产品</a>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-mockup">
+        <div class="mockup-header">
+          <div class="mockup-dots">
+            <span class="mockup-dot"></span>
+            <span class="mockup-dot"></span>
+            <span class="mockup-dot"></span>
+          </div>
+          <span class="mockup-title">AI门店助手 · 会话界面</span>
+        </div>
+        <div class="mockup-chat">
+          <div class="mockup-msg in">你好，我有一套三居室想出租</div>
+          <div class="mockup-msg out">您好！我来帮您登记。请问小区名称和面积是？</div>
+          <div class="mockup-msg in">阳光花园，120平，精装修，月租3500</div>
+          <div class="mockup-msg out">已为您生成房源信息 ✅ 我们将尽快上架推广！</div>
+        </div>
+        <div class="mockup-footer">
+          <span class="mockup-bar"></span>
+          <span class="mockup-bar"></span>
+          <span class="mockup-bar"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <span>向下滚动</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══ Stats Bar ═══ -->
+<div class="stats-bar section-inner reveal">
+  <div class="stat-item">
+    <div class="stat-number">2.4万亿</div>
+    <div class="stat-label">住房租赁市场规模</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">20万+</div>
+    <div class="stat-label">房产中介门店</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">70%</div>
+    <div class="stat-label">房源录入提效</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">24/7</div>
+    <div class="stat-label">全天候自动接待</div>
+  </div>
+</div>
+
+<!-- ═══ Market Pain Points ═══ -->
+<section id="pain-points">
+  <div class="section-inner">
+    <div class="pain-header reveal">
+      <div class="section-label">市场机遇</div>
+      <h2 class="section-title">行业痛点与解决方案</h2>
+      <p class="section-sub">房产中介行业正处于数字化转型的关键窗口期，AI技术正在重塑行业格局。</p>
+    </div>
+
+    <div class="market-numbers stagger reveal">
+      <div class="market-number-card">
+        <div class="market-num"><span class="accent">2.4</span>万亿</div>
+        <div class="market-desc">中国住房租赁市场规模（2025）</div>
+      </div>
+      <div class="market-number-card">
+        <div class="market-num"><span class="accent">85</span>%</div>
+        <div class="market-desc">中介门店仍依赖纯人工运营</div>
+      </div>
+      <div class="market-number-card">
+        <div class="market-num"><span class="accent">3</span>倍</div>
+        <div class="market-desc">AI应用可提升的运营效率</div>
+      </div>
+    </div>
+
+    <div class="pain-grid stagger reveal">
+      <div>
+        <div class="pain-col-title">😣 行业痛点</div>
+        <div class="pain-list">
+          <div class="pain-item">
+            <div class="pain-icon red">📱</div>
+            <div class="pain-text">
+              <h4>房东消息回复不及时</h4>
+              <p>消息多、人员少，房东咨询得不到即时回复，导致房源流失到竞争对手手中</p>
+            </div>
+          </div>
+          <div class="pain-item">
+            <div class="pain-icon red">📝</div>
+            <div class="pain-text">
+              <h4>房源录入效率低下</h4>
+              <p>人工录入房源信息耗时耗力，字段多、易出错，平均每套房源录入需15-20分钟</p>
+            </div>
+          </div>
+          <div class="pain-item">
+            <div class="pain-icon red">🧠</div>
+            <div class="pain-text">
+              <h4>员工专业知识不足</h4>
+              <p>房产政策、交易流程频繁变化，新员工培训周期长，业务问答效率低</p>
+            </div>
+          </div>
+          <div class="pain-item">
+            <div class="pain-icon red">📊</div>
+            <div class="pain-text">
+              <h4>门店管理全靠人工</h4>
+              <p>缺少数据化经营工具，店长无法实时掌握房源状态、员工绩效和经营数据</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="pain-col-title">✨ AI解决方案</div>
+        <div class="solution-list">
+          <div class="solution-item">
+            <div class="pain-icon green">🤖</div>
+            <div class="pain-text">
+              <h4>7×24h AI自动接待</h4>
+              <p>企业微信群内自动应答房东消息，AI实时结构化提取房源信息，不错过任何一条线索</p>
+            </div>
+          </div>
+          <div class="solution-item">
+            <div class="pain-icon green">⚡</div>
+            <div class="pain-text">
+              <h4>一键生成房源</h4>
+              <p>AI从对话中自动提取小区、面积、户型、租金等信息，效率提升70%，信息准确率95%+</p>
+            </div>
+          </div>
+          <div class="solution-item">
+            <div class="pain-icon green">📚</div>
+            <div class="pain-text">
+              <h4>RAG智能知识库</h4>
+              <p>基于大模型+向量检索，员工可随时查询政策、流程、话术，新人秒变"十年老店长"</p>
+            </div>
+          </div>
+          <div class="solution-item">
+            <div class="pain-icon green">📈</div>
+            <div class="pain-text">
+              <h4>数据驱动经营</h4>
+              <p>Dashboard实时展示房源状态、对话统计、员工绩效，让门店管理有据可依</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Product ═══ -->
+<section id="product">
+  <div class="section-inner">
+    <div class="product-header reveal">
+      <div class="section-label">产品矩阵</div>
+      <h2 class="section-title">四大模块，全面赋能</h2>
+      <p class="section-sub">覆盖房源获取、管理、员工赋能到经营决策的全链路智能化升级。</p>
+    </div>
+
+    <div class="product-grid stagger reveal">
+      <div class="product-card">
+        <div class="product-icon" style="background:#e8f0fe;">🤖</div>
+        <h3>AI房东接待</h3>
+        <p>基于DeepSeek大模型，在企业微信群中自动应答房东咨询。AI能理解自然语言、提取房源关键信息、礼貌跟进、判断转人工时机，实现真正的无人值守房源获取。</p>
+        <div class="product-tags">
+          <span class="product-tag">7×24h自动应答</span>
+          <span class="product-tag">智能信息提取</span>
+          <span class="product-tag">自动转人工</span>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-icon" style="background:#f3e8ff;">🏠</div>
+        <h3>智能房源管理</h3>
+        <p>房源信息自动结构化入库，支持多条件搜索、状态追踪、批量操作。从AI对话中提取的信息自动填充，人工确认后即可上架，极大降低运营成本。</p>
+        <div class="product-tags">
+          <span class="product-tag">自动结构化</span>
+          <span class="product-tag">多条件搜索</span>
+          <span class="product-tag">状态追踪</span>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-icon" style="background:#e0f7fa;">🧠</div>
+        <h3>员工AI助手</h3>
+        <p>基于RAG检索增强生成技术，员工可通过自然语言向AI咨询房产政策、交易流程、话术技巧。系统从知识库中检索相关信息，结合大模型给出精准回答。</p>
+        <div class="product-tags">
+          <span class="product-tag">RAG检索增强</span>
+          <span class="product-tag">政策知识库</span>
+          <span class="product-tag">话术支持</span>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-icon" style="background:#fff7ed;">📊</div>
+        <h3>经营看板</h3>
+        <p>一站式门店经营Dashboard，实时展示房源总数、在租房源、员工统计、对话概览等核心指标。店长可随时掌握门店经营全貌，数据驱动决策。</p>
+        <div class="product-tags">
+          <span class="product-tag">实时统计</span>
+          <span class="product-tag">核心指标</span>
+          <span class="product-tag">数据可视化</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Architecture ═══ -->
+<section id="architecture">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">技术架构</div>
+      <h2 class="section-title">企业级架构，稳定可靠</h2>
+      <p class="section-sub">采用 Clean Architecture 四层架构，确保系统可维护性、可测试性和技术栈的可替换性。</p>
+    </div>
+
+    <div class="arch-visual stagger reveal">
+      <div class="arch-layer">
+        <span class="arch-layer-dot" style="background:var(--blue);"></span>
+        <span class="arch-layer-label" style="color:var(--blue);">Interface</span>
+        <div class="arch-layer-tech">
+          <span class="arch-tech-item">FastAPI RESTful</span>
+          <span class="arch-tech-item">Next.js 15</span>
+          <span class="arch-tech-item">OpenAPI 3.0</span>
+          <span class="arch-tech-item">JWT + RBAC</span>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <span class="arch-layer-dot" style="background:var(--indigo);"></span>
+        <span class="arch-layer-label" style="color:var(--indigo);">Application</span>
+        <div class="arch-layer-tech">
+          <span class="arch-tech-item">Use Cases</span>
+          <span class="arch-tech-item">DTO 数据传输</span>
+          <span class="arch-tech-item">业务编排</span>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <span class="arch-layer-dot" style="background:var(--green);"></span>
+        <span class="arch-layer-label" style="color:var(--green);">Domain</span>
+        <div class="arch-layer-tech">
+          <span class="arch-tech-item">实体聚合根</span>
+          <span class="arch-tech-item">领域服务</span>
+          <span class="arch-tech-item">值对象</span>
+          <span class="arch-tech-item">Repository 接口</span>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <span class="arch-layer-dot" style="background:var(--orange);"></span>
+        <span class="arch-layer-label" style="color:var(--orange);">Infrastructure</span>
+        <div class="arch-layer-tech">
+          <span class="arch-tech-item">PostgreSQL / pgvector</span>
+          <span class="arch-tech-item">DeepSeek AI</span>
+          <span class="arch-tech-item">企业微信 SDK</span>
+          <span class="arch-tech-item">Redis · Docker</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tech-features stagger reveal">
+      <div class="tech-feature">
+        <div class="tech-feature-icon">🔌</div>
+        <h4>AI供应商可替换</h4>
+        <p>BaseAIModel抽象接口，支持DeepSeek / OpenAI / 智谱等任意大模型供应商无缝切换</p>
+      </div>
+      <div class="tech-feature">
+        <div class="tech-feature-icon">🔒</div>
+        <h4>企业微信原生集成</h4>
+        <p>深度集成企微回调、加解密、消息发送，支持群聊、@消息、机器人 Webhook</p>
+      </div>
+      <div class="tech-feature">
+        <div class="tech-feature-icon">🧩</div>
+        <h4>RAG 混合检索</h4>
+        <p>向量相似度 + 全文关键词 + RRF 融合排序，准确率显著优于单一检索策略</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Business Model ═══ -->
+<section id="business-model">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">商业模式</div>
+      <h2 class="section-title">合作共赢，灵活选择</h2>
+      <p class="section-sub">多种合作模式，匹配不同规模和发展阶段的门店需求。</p>
+    </div>
+
+    <div class="biz-grid stagger reveal">
+      <div>
+        <h3 style="font-size:18px;font-weight:600;margin-bottom:20px;color:var(--gray-800);">💳 SaaS 订阅方案</h3>
+        <div class="pricing-cards">
+          <div class="pricing-card">
+            <div class="pricing-tier"><h4>基础版</h4><div class="price">小型门店</div></div>
+            <div class="pricing-desc">AI房东接待 + 房源管理，满足日常运营所需</div>
+          </div>
+          <div class="pricing-card">
+            <div class="pricing-tier"><h4>专业版</h4><div class="price">中型门店</div></div>
+            <div class="pricing-desc">基础版 + AI员工助手 + RAG知识库 + 经营看板</div>
+          </div>
+          <div class="pricing-card">
+            <div class="pricing-tier"><h4>旗舰版</h4><div class="price">连锁品牌</div></div>
+            <div class="pricing-desc">全部功能 + 多门店管理 + BI分析 + 专属部署</div>
+            <span class="pricing-badge">推荐</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:18px;font-weight:600;margin-bottom:20px;color:var(--gray-800);">🤝 合作模式</h3>
+        <div class="coop-grid">
+          <div class="coop-card">
+            <h4>城市合伙人</h4>
+            <p>成为区域独家代理，享受品牌赋能、培训支持、收益分成。适合有行业资源的合作伙伴。</p>
+          </div>
+          <div class="coop-card">
+            <h4>品牌加盟</h4>
+            <p>系统+品牌+运营全套方案输出，快速复制成功门店模式。</p>
+          </div>
+          <div class="coop-card">
+            <h4>系统直采</h4>
+            <p>直接采购SaaS服务，按月/按年付费，零门槛快速上线。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="value-prop stagger reveal">
+      <div class="value-card">
+        <div class="big-num">70<span class="suffix">%</span></div>
+        <p>房源录入效率提升<br><span style="font-size:12px;color:var(--gray-400);">AI自动提取 vs 手动录入</span></p>
+      </div>
+      <div class="value-card">
+        <div class="big-num">3<span class="suffix">×</span></div>
+        <p>房东响应速度提升<br><span style="font-size:12px;color:var(--gray-400);">即时回复 vs 人工排队</span></p>
+      </div>
+      <div class="value-card">
+        <div class="big-num">60<span class="suffix">%</span></div>
+        <p>运营成本降低<br><span style="font-size:12px;color:var(--gray-400);">智能化 vs 纯人工作业</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Roadmap ═══ -->
+<section id="roadmap">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">实施路线图</div>
+      <h2 class="section-title">清晰路径，稳步落地</h2>
+      <p class="section-sub">明确的阶段性目标和时间规划，确保产品持续迭代、价值不断释放。</p>
+    </div>
+
+    <div class="roadmap-timeline stagger reveal">
+      <div class="roadmap-item">
+        <div class="roadmap-phase">
+          V1.0 · MVP
+          <span class="time">2026 Q3</span>
+        </div>
+        <div class="roadmap-content">
+          <h3>AI房东接待 + 房源管理</h3>
+          <p>企业微信自动应答、AI结构化提取房源信息、房源增删改查。完成核心闭环验证，实现房源从获取到入库的自动化。</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-phase">
+          V1.5 · 增长
+          <span class="time">2026 Q4</span>
+        </div>
+        <div class="roadmap-content">
+          <h3>员工AI助手 + 知识库</h3>
+          <p>RAG智能问答、政策知识库管理、员工对话辅助。AI辅助业务员沟通，全面提升团队专业度。</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-phase">
+          V2.0 · 扩展
+          <span class="time">2027 Q1</span>
+        </div>
+        <div class="roadmap-content">
+          <h3>全链路业务系统 + BI分析</h3>
+          <p>定价策略、推广管理、服务团队协同、买家管理、交易管理。数据分析Pipeline提供经营洞察。</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-phase">
+          V3.0 · 生态
+          <span class="time">2027 Q2+</span>
+        </div>
+        <div class="roadmap-content">
+          <h3>多平台接入 + 合伙人网络</h3>
+          <p>接入贝壳、安居客等第三方平台API，构建城市合伙人网络，打造开放生态平台。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section id="cta">
+  <div class="section-inner">
+    <div class="cta-content reveal">
+      <h2>携手共创智慧门店新未来</h2>
+      <p>
+        AI Store Copilot 正在寻找志同道合的合作伙伴。<br>
+        如果您拥有房产行业资源或对AI赋能门店有兴趣，欢迎联系我们！
+      </p>
+      <div class="cta-buttons">
+        <a href="mailto:r13479448782@outlook.com" class="btn-primary">📧 发送邮件</a>
+        <a href="#" class="btn-secondary">📱 预约演示</a>
+      </div>
+      <div class="cta-contact">
+        <div class="cta-contact-item">
+          <div class="icon">📧</div>
+          <h4>商务邮箱</h4>
+          <p>r13479448782@outlook.com</p>
+        </div>
+        <div class="cta-contact-item">
+          <div class="icon">📱</div>
+          <h4>联系电话</h4>
+          <p>13479448782</p>
+        </div>
+        <div class="cta-contact-item">
+          <div class="icon">🌐</div>
+          <h4>官方网站</h4>
+          <p>www.aistorecopilot.com</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Footer ═══ -->
+<footer>
+  <p>© 2026 AI Store Copilot Team · 房地产AI门店经营助手</p>
+</footer>
+
+<div id="scroll-progress"></div>
+
+<script>
+  // ─── Scroll Progress Bar ───
+  const progressBar = document.getElementById('scroll-progress');
+
+  // ─── DOM refs ───
+  const navbar = document.getElementById('navbar');
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  const revealEls = document.querySelectorAll('.reveal');
+
+  // ─── Throttle helper ───
+  function throttle(fn, ms) {
+    let last = 0;
+    return (...args) => {
+      const now = performance.now();
+      if (now - last >= ms) { last = now; fn(...args); }
+    };
+  }
+
+  // ─── Main scroll handler ───
+  function onScroll() {
+    const scrollY = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollPercent = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
+
+    // 1. Progress bar
+    progressBar.style.width = scrollPercent + '%';
+
+    // 2. Navbar background
+    navbar.classList.toggle('scrolled', scrollY > 40);
+
+    // 3. Active nav link — find the section whose top is closest above center
+    let activeId = 'hero';
+    const center = scrollY + window.innerHeight / 3;
+
+    sections.forEach(sec => {
+      const top = sec.offsetTop;
+      const bottom = top + sec.offsetHeight;
+      if (center >= top && center < bottom) {
+        activeId = sec.id;
+      }
+    });
+
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href').replace('#', '');
+      link.classList.toggle('active', href === activeId);
+    });
+  }
+
+  // ─── Throttled scroll listener ───
+  window.addEventListener('scroll', throttle(onScroll, 60));
+
+  // ─── Intersection Observer for reveal animations ───
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        } else {
+          entry.target.classList.remove('visible');
+        }
+      });
+    },
+    { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+  );
+  revealEls.forEach(el => revealObserver.observe(el));
+
+  // ─── Stagger observer (adds .revealed instead of .visible) ───
+  const staggerObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+        } else {
+          entry.target.classList.remove('revealed');
+        }
+      });
+    },
+    { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+  );
+  document.querySelectorAll('.stagger').forEach(el => staggerObserver.observe(el));
+
+  // ─── Initial call ───
+  onScroll();
+</script>
+
+</body>
+</html>
