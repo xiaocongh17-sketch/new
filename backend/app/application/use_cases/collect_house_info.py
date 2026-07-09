@@ -67,8 +67,17 @@ class CollectHouseInfoUseCase:
         sid = session_id or "default"
         if sid not in self._sessions:
             # Initialize: merge any frontend state
-            self._sessions[sid] = {"step": 0, "collected": dict(collected)}
+            self._sessions[sid] = {"step": 0, "collected": dict(collected), "saved": False, "house_id": None}
         state = self._sessions[sid]
+
+        # If already saved in this session, return immediately
+        if state.get("saved"):
+            return {
+                "reply": "房源信息已全部采集完毕并保存，无需重复录入。点击上方「问答」标签可以问我其他问题。",
+                "extracted": {}, "next_question": "", "score": 100,
+                "house_id": state.get("house_id"), "core_complete": True,
+            }
+
         # Merge incoming frontend state
         for k, v in collected.items():
             if v is not None and v != "" and v is not False:
@@ -200,17 +209,19 @@ class CollectHouseInfoUseCase:
             # Move step forward since we just asked about it
             # (will advance on next call when user answers)
             merged = dict(state["collected"])
-            score = min(100, sum(1 for v in merged.values() if v is not None and v != "") * 5)
+            score = min(100, int(100 * sum(1 for v in merged.values() if v is not None and v != "") / len(STEPS)))
 
         # ── Step 4: Build merged for response ──
         merged = dict(state["collected"])
 
-        # Auto-save
+        # Auto-save ONLY when ALL steps are complete AND not already saved
         house_id = None
-        core = ["community", "area", "room_type", "rent_price", "occupancy_status"]
-        if all(merged.get(f) for f in core) and self.house_repo:
+        all_done = state["step"] >= len(STEPS)
+        if all_done and not state.get("saved") and self.house_repo:
             try:
                 house_id = await self._auto_save(merged, store_id)
+                state["saved"] = True
+                state["house_id"] = str(house_id) if house_id else None
             except Exception:
                 pass
 
@@ -218,12 +229,30 @@ class CollectHouseInfoUseCase:
             "reply": reply,
             "extracted": {k: (str(v) if not isinstance(v, bool) else v) for k, v in extracted.items()},
             "next_question": real_next if state["step"] < len(STEPS) else "",
-            "score": min(100, sum(1 for v in merged.values() if v is not None and v != "") * 5),
+            "score": min(100, int(100 * sum(1 for v in merged.values() if v is not None and v != "") / len(STEPS))),
             "house_id": str(house_id) if house_id else None,
-            "core_complete": all(merged.get(f) for f in core),
+            "core_complete": all_done,
         }
 
     async def _auto_save(self, data, store_id):
+        # DB-level dedup: don't save if identical house exists
+        if self.house_repo:
+            try:
+                from app.domain.repositories.house_repository import HouseFilter
+                comm = data.get("community", "")
+                if comm:
+                    existing = await self.house_repo.find_by_store(
+                        store_id=None, filter=HouseFilter(community=comm), page=1, page_size=5,
+                    )
+                    for h in existing.items:
+                        if (str(h.area) == str(data.get("area", "")) and
+                            h.room_type == data.get("room_type", "") and
+                            str(h.rent_price) == str(data.get("rent_price", ""))):
+                            logger.info("dedup_skip", community=comm)
+                            return h.id  # Already exists, return existing ID
+            except Exception:
+                pass
+
         from app.domain.entities.house import House
         price = Decimal(str(data.get("rent_price") or data.get("list_price") or 0))
         area = Decimal(str(data.get("area", 0)))
@@ -247,7 +276,7 @@ class CollectHouseInfoUseCase:
             is_only_home=data.get("is_only_home") in [True, "true", "是", "yes", True],
             seller_motivation=data.get("seller_motivation"),
             ai_collected_fields=",".join(k for k, v in data.items() if v is not None and v != ""),
-            collector_score=min(100, sum(1 for v in data.values() if v is not None and v != "") * 5),
+            collector_score=min(100, int(100 * sum(1 for v in data.values() if v is not None and v != "") / len(STEPS))),
         )
         saved = await self.house_repo.save(house)
         return saved.id
