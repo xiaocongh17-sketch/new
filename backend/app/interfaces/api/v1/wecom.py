@@ -9,10 +9,15 @@ from app.infrastructure.wecom.client import WeComClient
 from app.application.use_cases.answer_employee_query import AnswerEmployeeQueryUseCase
 from app.infrastructure.ai.factory import get_ai_model
 from app.infrastructure.persistence.repositories.knowledge_repo import SQLAlchemyKnowledgeRepository
+from app.infrastructure.persistence.repositories.conversation_repo import SQLAlchemyConversationRepository
 from app.infrastructure.persistence.database import async_session_factory
+from app.domain.entities.conversation import Conversation as ConversationEntity
+from app.domain.entities.message import Message as MessageEntity
+from app.domain.value_objects.enums import MessageType
+from app.domain.services.conversation_manager import ESCALATION_KEYWORDS, ConversationManager
 from datetime import datetime
 import structlog
-import xml.etree.ElementTree as ET
+import uuid
 
 router = APIRouter(prefix="/wecom", tags=["企业微信"])
 logger = structlog.get_logger()
@@ -93,7 +98,7 @@ async def handle_callback(
                      chat_id=wecom_msg.chat_id,
                      is_group=is_group)
 
-        # 2. If it's a text message, generate AI reply
+        # 2. If it's a text message, check escalation then generate AI reply
         msg_content = (wecom_msg.content or "").strip()
         if wecom_msg.msg_type == "text" and msg_content:
             logger.info("wecom_ai_processing",
@@ -101,21 +106,40 @@ async def handle_callback(
                          is_group=is_group)
 
             async with async_session_factory() as session:
-                knowledge_repo = SQLAlchemyKnowledgeRepository(session)
-                ai_model = get_ai_model()
-                use_case = AnswerEmployeeQueryUseCase(
-                    ai_model=ai_model,
-                    knowledge_repo=knowledge_repo,
-                )
-                try:
-                    result = await use_case.execute(
-                        query=msg_content,
-                        store_id=None,
+                # 2a. Check if message triggers escalation keywords
+                conv_manager = ConversationManager()
+                should_escalate, reason = conv_manager.should_escalate(msg_content)
+
+                if should_escalate:
+                    conv_repo = SQLAlchemyConversationRepository(session)
+                    conv = await conv_repo.find_active_by_group(wecom_msg.from_user)
+                    if not conv:
+                        conv = ConversationEntity.create(
+                            wecom_group_id=wecom_msg.from_user,
+                        )
+                    conv.request_review()
+                    await conv_repo.save(conv)
+                    logger.warning("wecom_escalated",
+                                    user=wecom_msg.from_user,
+                                    reason=reason)
+                    reply_content = "很抱歉，您提到的问题需要转接给人工客服处理。请您稍等，我们的专业顾问会尽快联系您。"
+                else:
+                    # 2b. Normal AI processing
+                    knowledge_repo = SQLAlchemyKnowledgeRepository(session)
+                    ai_model = get_ai_model()
+                    use_case = AnswerEmployeeQueryUseCase(
+                        ai_model=ai_model,
+                        knowledge_repo=knowledge_repo,
                     )
-                    reply_content = result.get("answer", "")
-                except Exception as e:
-                    logger.error("ai_reply_error", error=str(e))
-                    reply_content = "抱歉，AI 服务暂时不可用，请联系管理员。"
+                    try:
+                        result = await use_case.execute(
+                            query=msg_content,
+                            store_id=None,
+                        )
+                        reply_content = result.get("answer", "")
+                    except Exception as e:
+                        logger.error("ai_reply_error", error=str(e))
+                        reply_content = "抱歉，AI 服务暂时不可用，请联系管理员。"
 
             # 3. Build reply — for group chat, prefix @username so the asker knows it's for them
             if is_group:

@@ -10,6 +10,7 @@ import {
   BookOpen,
   MessageSquare,
   Building2,
+  MessageCircle,
   LogOut,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth";
@@ -20,6 +21,7 @@ const menuItems = [
   { href: "/employees", label: "员工管理", icon: Users },
   { href: "/knowledge", label: "知识库", icon: BookOpen },
   { href: "/ai-chat", label: "AI 助手", icon: MessageSquare },
+  { href: "/conversations", label: "对话管理", icon: MessageCircle },
   { href: "/stores", label: "门店管理", icon: Building2 },
 ];
 

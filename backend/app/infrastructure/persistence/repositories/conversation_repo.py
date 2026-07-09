@@ -50,6 +50,40 @@ class SQLAlchemyConversationRepository(ConversationRepository):
         items = [self._to_domain(m) for m in result.scalars().all()]
         return items, total
 
+    async def find_pending_review(self, page: int = 1,
+                                   page_size: int = 20) -> tuple[list[Conversation], int]:
+        query = select(ConversationModel).where(
+            ConversationModel.status == "pending_review"
+        )
+        count_query = select(func.count()).select_from(ConversationModel).where(
+            ConversationModel.status == "pending_review"
+        )
+
+        total_result = await self.session.execute(count_query)
+        total = total_result.scalar() or 0
+
+        offset = (page - 1) * page_size
+        result = await self.session.execute(
+            query.order_by(ConversationModel.updated_at.desc()).offset(offset).limit(page_size)
+        )
+        items = [self._to_domain(m) for m in result.scalars().all()]
+        return items, total
+
+    async def find_all(self, page: int = 1,
+                        page_size: int = 20) -> tuple[list[Conversation], int]:
+        count_query = select(func.count()).select_from(ConversationModel)
+        total_result = await self.session.execute(count_query)
+        total = total_result.scalar() or 0
+
+        offset = (page - 1) * page_size
+        result = await self.session.execute(
+            select(ConversationModel)
+            .order_by(ConversationModel.updated_at.desc())
+            .offset(offset).limit(page_size)
+        )
+        items = [self._to_domain(m) for m in result.scalars().all()]
+        return items, total
+
     async def save(self, conversation: Conversation) -> Conversation:
         model = self._to_orm(conversation)
         self.session.add(model)

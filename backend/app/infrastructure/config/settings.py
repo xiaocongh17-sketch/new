@@ -1,5 +1,6 @@
 """Application configuration via environment variables."""
 
+import os
 from pydantic_settings import BaseSettings
 from typing import Optional
 
@@ -9,15 +10,15 @@ class Settings(BaseSettings):
     debug: bool = True
     secret_key: str = "change-me-in-production"
 
-    database_url: str = "postgresql+asyncpg://postgres:postgres@db:5432/ai_store_copilot"
-    database_sync_url: str = "postgresql://postgres:postgres@db:5432/ai_store_copilot"
+    database_url: str = "sqlite+aiosqlite:///./dev.db"
+    database_sync_url: str = "sqlite:///./dev.db"
 
-    redis_url: str = "redis://redis:6379/0"
+    redis_url: str = ""
 
     ai_provider: str = "deepseek"
     ai_api_key: str = ""
     ai_base_url: str = "https://api.deepseek.com"
-    ai_model: str = "deepseek-v4-flash"
+    ai_model: str = "deepseek-chat"
     ai_embed_model: str = "deepseek-embedding"
 
     wecom_corp_id: str = ""
@@ -34,7 +35,8 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     class Config:
-        env_file = ".env"
+        _env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", ".env")
+        env_file = _env_path if os.path.isfile(_env_path) else ".env"
         env_file_encoding = "utf-8"
 
 

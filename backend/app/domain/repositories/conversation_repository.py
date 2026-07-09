@@ -22,6 +22,16 @@ class ConversationRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def find_pending_review(self, page: int = 1,
+                                  page_size: int = 20) -> tuple[list[Conversation], int]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def find_all(self, page: int = 1,
+                       page_size: int = 20) -> tuple[list[Conversation], int]:
+        raise NotImplementedError
+
+    @abstractmethod
     async def save(self, conversation: Conversation) -> Conversation:
         raise NotImplementedError
 
