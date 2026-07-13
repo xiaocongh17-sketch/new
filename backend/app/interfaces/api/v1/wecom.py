@@ -10,7 +10,7 @@ from app.application.use_cases.answer_employee_query import AnswerEmployeeQueryU
 from app.infrastructure.ai.factory import get_ai_model
 from app.infrastructure.persistence.repositories.knowledge_repo import SQLAlchemyKnowledgeRepository
 from app.infrastructure.persistence.repositories.conversation_repo import SQLAlchemyConversationRepository
-from app.infrastructure.persistence.database import async_session_factory
+from app.infrastructure.persistence import database as db_module
 from app.domain.entities.conversation import Conversation as ConversationEntity
 from app.domain.entities.message import Message as MessageEntity
 from app.domain.value_objects.enums import MessageType
@@ -105,7 +105,7 @@ async def handle_callback(
                          query=msg_content[:100],
                          is_group=is_group)
 
-            async with async_session_factory() as session:
+            async with db_module.async_session_factory() as session:
                 # 2a. Check if message triggers escalation keywords
                 conv_manager = ConversationManager()
                 should_escalate, reason = conv_manager.should_escalate(msg_content)

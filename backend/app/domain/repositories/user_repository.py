@@ -15,6 +15,10 @@ class UserRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def find_by_username(self, username: str) -> User | None:
+        raise NotImplementedError
+
+    @abstractmethod
     async def find_by_store(self, store_id: uuid.UUID) -> list[User]:
         raise NotImplementedError
 

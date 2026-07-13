@@ -10,8 +10,15 @@ class Settings(BaseSettings):
     debug: bool = True
     secret_key: str = "change-me-in-production"
 
-    database_url: str = "sqlite+aiosqlite:///./dev.db"
-    database_sync_url: str = "sqlite:///./dev.db"
+    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5433/ai_store_copilot"
+    database_sync_url: str = "postgresql://postgres:postgres@localhost:5433/ai_store_copilot"
+
+    # PostgreSQL connection details (for CLI / dev scripts)
+    pg_host: str = "localhost"
+    pg_port: int = 5433
+    pg_user: str = "postgres"
+    pg_password: str = "postgres"
+    pg_database: str = "ai_store_copilot"
 
     redis_url: str = ""
 
@@ -33,6 +40,18 @@ class Settings(BaseSettings):
     jwt_refresh_token_expire_days: int = 7
 
     log_level: str = "INFO"
+
+    # ── CORS ────────────────────────────────────────────────
+    cors_origins: str = ""  # comma-separated; empty = allow all in dev
+    otel_service_name: str = "ai-store-copilot"
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        """Parse comma-separated CORS origins into a list."""
+        origins = self.cors_origins.strip()
+        if not origins:
+            return ["*"]
+        return [o.strip() for o in origins.split(",") if o.strip()]
 
     class Config:
         _env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", ".env")

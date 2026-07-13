@@ -10,7 +10,7 @@ from app.domain.value_objects.enums import UserRole
 from app.domain.repositories.user_repository import UserRepository
 from app.infrastructure.persistence.repositories.user_repo import SQLAlchemyUserRepository
 from app.infrastructure.persistence.repositories.store_repo import SQLAlchemyStoreRepository
-from app.infrastructure.persistence.database import async_session_factory
+from app.infrastructure.persistence import database as db_module
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/employees", tags=["员工管理"])
@@ -40,7 +40,7 @@ async def list_employees(
 ):
     """List employees (store-scoped for managers, all for admins)."""
     if current_user.role == UserRole.ADMIN:
-        async with async_session_factory() as session:
+        async with db_module.async_session_factory() as session:
             store_repo = SQLAlchemyStoreRepository(session)
             stores = await store_repo.find_all()
             all_users = []

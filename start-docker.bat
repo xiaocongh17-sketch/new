@@ -1,5 +1,5 @@
 @echo off
-cd /d "E:\AI客服（\docker"
+cd /d "%~dp0docker"
 
 :wait_docker
 docker info >nul 2>&1

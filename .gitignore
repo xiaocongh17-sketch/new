@@ -8,6 +8,7 @@ venv/
 # Environment
 .env
 .env.local
+.env.production
 
 # IDE
 .idea/
@@ -31,3 +32,12 @@ Thumbs.db
 *.pyc
 .dist/
 build/
+
+# Logs
+*.log
+
+# Testing
+.cache/
+.coverage
+htmlcov/
+.pytest_cache/

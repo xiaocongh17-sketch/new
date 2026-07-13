@@ -30,8 +30,8 @@
 ### 1. 克隆项目
 
 ```bash
-git clone <repo-url> "e:\AI客服（"
-cd "e:\AI客服（"
+git clone <repo-url>
+cd ai-store-copilot
 ```
 
 ### 2. 配置环境变量
@@ -62,7 +62,7 @@ docker compose -f docker/docker-compose.yml up -d
 ```bash
 # 健康检查
 curl http://localhost:8000/api/health
-# 预期输出: {"status":"ok","version":"0.1.0"}
+# 预期输出: {"status":"ok","version":"0.1.0","database":"connected","ai_provider":"deepseek"}
 
 # API 文档
 # 浏览器访问: http://localhost:8000/api/docs
@@ -169,6 +169,8 @@ cat backup.sql | docker compose exec -T db psql -U postgres ai_store_copilot
 | ---------------------- | ---- | ----------------- | ---------------------------- |
 | `DEBUG`                | 否   | `true`            | 调试模式（生产环境设为 false）|
 | `SECRET_KEY`           | 是   | —                 | 应用密钥（生产环境必须修改） |
+| `CORS_ORIGINS`         | 否   | `http://localhost:3000` | 允许跨域来源（逗号分隔，空=允许所有） |
+| `OTEL_SERVICE_NAME`    | 否   | `ai-store-copilot` | OpenTelemetry 服务名 |
 | `LOG_LEVEL`            | 否   | `INFO`            | 日志级别                     |
 
 ### 数据库
@@ -421,7 +423,7 @@ docker compose exec frontend env | grep NEXT_PUBLIC
 ### 项目目录结构
 
 ```
-e:\AI客服（
+ai-store-copilot/
 ├── backend/           # FastAPI 后端
 │   ├── app/           # 应用代码
 │   │   ├── domain/           # 领域层（纯 Python）

@@ -1,7 +1,7 @@
 """AI assistant API routes."""
 
 from pydantic import BaseModel
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from app.interfaces.api.deps import require_user, get_ai_model_dep, get_knowledge_repo, get_house_repo
 from app.domain.entities.user import User
 from app.domain.repositories.knowledge_repository import KnowledgeRepository
@@ -10,12 +10,16 @@ from app.domain.interfaces.ai_model import BaseAIModel
 from app.application.dto.house_dto import ChatInput, ChatOutput
 from app.application.use_cases.answer_employee_query import AnswerEmployeeQueryUseCase
 from app.application.use_cases.collect_house_info import CollectHouseInfoUseCase
+from app.interfaces.middleware.rate_limit import get_rate_limiter
 
 router = APIRouter(prefix="/ai", tags=["AI 助手"])
+limiter = get_rate_limiter()
 
 
 @router.post("/chat", response_model=ChatOutput, summary="AI 业务助手对话")
+@limiter.limit("10/minute")
 async def ai_chat(
+    request: Request,
     input: ChatInput,
     current_user: User = Depends(require_user),
     ai_model: BaseAIModel = Depends(get_ai_model_dep),
@@ -45,7 +49,9 @@ class CollectInput(BaseModel):
 
 
 @router.post("/collect", summary="AI 房源信息采集对话")
+@limiter.limit("10/minute")
 async def ai_collect(
+    request: Request,
     input: CollectInput,
     current_user: User = Depends(require_user),
     ai_model: BaseAIModel = Depends(get_ai_model_dep),

@@ -5,6 +5,7 @@ __pycache__/
 .venv/
 venv/
 .pytest_cache/
+.cache/
 .coverage
 htmlcov/
 
@@ -17,6 +18,7 @@ htmlcov/
 # Environment
 .env
 .env.local
+.env.production
 
 # Git
 .git/
@@ -27,4 +29,7 @@ htmlcov/
 Thumbs.db
 
 # Docker
+dev.db
 test.db
+*.log
+*.log.*

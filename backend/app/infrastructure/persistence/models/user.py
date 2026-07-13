@@ -20,6 +20,8 @@ class UserModel(Base, TimestampMixin):
     name: Mapped[str] = mapped_column(String(128), nullable=False)
     role: Mapped[str] = mapped_column(String(32), nullable=False)  # admin|store_manager|agent|landlord
     phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    username: Mapped[str | None] = mapped_column(String(128), unique=True, nullable=True)
+    password_hash: Mapped[str | None] = mapped_column(String(256), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     store = relationship("StoreModel", backref="users")

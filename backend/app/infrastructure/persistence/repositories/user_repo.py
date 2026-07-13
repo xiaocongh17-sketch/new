@@ -25,6 +25,13 @@ class SQLAlchemyUserRepository(UserRepository):
         model = result.scalar_one_or_none()
         return self._to_domain(model) if model else None
 
+    async def find_by_username(self, username: str) -> User | None:
+        result = await self.session.execute(
+            select(UserModel).where(UserModel.username == username)
+        )
+        model = result.scalar_one_or_none()
+        return self._to_domain(model) if model else None
+
     async def find_by_store(self, store_id: uuid.UUID) -> list[User]:
         result = await self.session.execute(
             select(UserModel).where(UserModel.store_id == store_id)
@@ -46,6 +53,8 @@ class SQLAlchemyUserRepository(UserRepository):
             role=UserRole(model.role),
             store_id=model.store_id,
             phone=model.phone,
+            username=model.username,
+            password_hash=model.password_hash,
             is_active=model.is_active,
             created_at=model.created_at,
             updated_at=model.updated_at,
@@ -59,5 +68,7 @@ class SQLAlchemyUserRepository(UserRepository):
             role=domain.role.value,
             store_id=domain.store_id,
             phone=domain.phone,
+            username=domain.username,
+            password_hash=domain.password_hash,
             is_active=domain.is_active,
         )
